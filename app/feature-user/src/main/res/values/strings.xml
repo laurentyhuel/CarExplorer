@@ -1,0 +1,17 @@
+<resources>
+    <string name="firstName">First name</string>
+    <string name="lastName">Last name</string>
+    <string name="address">Address</string>
+    <string name="birthday">Birth day</string>
+    <string name="photo">Photo</string>
+
+    <string name="edit">Edit</string>
+    <string name="save">Save</string>
+
+    <string name="dialog_select_take_photo_title">Select or take a photo ?</string>
+    <string name="take_photo">Take a photo</string>
+    <string name="select_photo_unsupported">Select a photo is not available on your device 😟</string>
+    <string name="select_photo">Select a photo</string>
+    <string name="permission_camera">Camera permission required for this feature to be available. Please grant the permission</string>
+    <string name="request_permission">request permission</string>
+</resources>
