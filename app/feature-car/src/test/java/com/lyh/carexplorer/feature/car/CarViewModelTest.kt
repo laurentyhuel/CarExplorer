@@ -3,11 +3,8 @@ package com.lyh.carexplorer.feature.car
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.lyh.carexplorer.domain.CarUseCase
-import com.lyh.carexplorer.domain.core.ResultError
-import com.lyh.carexplorer.domain.core.ResultSuccess
 import com.lyh.carexplorer.domain.model.CarModel
 import com.lyh.carexplorer.feature.car.detail.CarViewModel
-import com.lyh.carexplorer.feature.car.model.CarUi
 import com.lyh.carexplorer.feature.car.nav.CarDestination
 import com.lyh.carexplorer.feature.car.util.CoroutinesTestExtension
 import com.lyh.carexplorer.feature.car.util.InstantExecutorExtension
@@ -34,7 +31,7 @@ class CarViewModelTest {
     @Test
     fun `WHEN get car by id succeed THEN get data`() = runTest {
         val carUseCase = mockk<CarUseCase> {
-            every { getCarById(carId) } returns flowOf(ResultSuccess(createCarModel(carId)))
+            every { getCarById(carId) } returns flowOf(Result.success(createCarModel(carId)))
         }
         val carViewModel = CarViewModel(savedStateHandle, carUseCase)
         val car = createCarModel(carId)
@@ -63,7 +60,7 @@ class CarViewModelTest {
     @Test
     fun `WHEN get car by id failed THEN get data`() = runTest {
         val carUseCase = mockk<CarUseCase> {
-            every { getCarById(carId) } returns flowOf(ResultError(400, "Bad request"))
+            every { getCarById(carId) } returns flowOf(Result.failure(IllegalArgumentException()))
         }
         val carViewModel = CarViewModel(savedStateHandle, carUseCase)
 

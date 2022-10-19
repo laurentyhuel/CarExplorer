@@ -53,7 +53,6 @@ UI use Jetpack Compose.
 
 - data: unit tests on repository and helper
     - data-local : Instrumented tests for use in-memory Room database
-    - data-remote: unit tests on helper
 - domain: unit tests on use-case
 - app
     - feature-car : unit tests on view-model

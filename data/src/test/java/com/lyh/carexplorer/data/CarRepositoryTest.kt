@@ -6,17 +6,13 @@ import com.lyh.carexplorer.data.local.dao.CarDao
 import com.lyh.carexplorer.data.local.entity.CarEntity
 import com.lyh.carexplorer.data.remote.CarApi
 import com.lyh.carexplorer.data.remote.dto.CarDto
-import com.lyh.carexplorer.domain.core.ResultException
-import com.lyh.carexplorer.domain.core.ResultSuccess
-import com.lyh.carexplorer.domain.model.CarModel
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import retrofit2.Response
 import java.util.concurrent.TimeoutException
 
 class CarRepositoryTest {
@@ -31,15 +27,15 @@ class CarRepositoryTest {
     @Test
     fun `WHEN get new cars from remote THEN fetch, sync locally and return cars`() = runTest {
 
-        coEvery { carApi.getCars() } returns Response.success(carsFromRemote)
+        coEvery { carApi.getCars() } returns Result.success(carsFromRemote)
         coEvery { carDao.getCars() } returns carsFromLocal
         carRepository.getCars().test {
             val result = awaitItem()
 
-            Assertions.assertTrue(result is ResultSuccess<*>)
-            val resultSuccess = result as ResultSuccess<List<CarModel>>
+            assertTrue(result.isSuccess)
+            val resultSuccess = result.getOrThrow()
 
-            assertEquals(carsFromLocal.size, resultSuccess.data.size)
+            assertEquals(carsFromLocal.size, resultSuccess.size)
 
             awaitComplete()
         }
@@ -55,11 +51,11 @@ class CarRepositoryTest {
             .test {
                 val result = awaitItem()
 
-                Assertions.assertTrue(result is ResultSuccess)
-                val resultSuccess = result as ResultSuccess
+                assertTrue(result.isSuccess)
+                val resultSuccess = result.getOrThrow()
 
-                assertEquals(car.id, resultSuccess.data.id)
-                assertEquals(car.model, result.data.model)
+                assertEquals(car.id, resultSuccess.id)
+                assertEquals(car.model, resultSuccess.model)
 
                 awaitComplete()
             }
@@ -73,7 +69,7 @@ class CarRepositoryTest {
         carRepository.getCarById(5).test {
             val result = awaitItem()
 
-            Assertions.assertTrue(result is ResultException)
+            assertTrue(result.isFailure)
 
             awaitComplete()
         }

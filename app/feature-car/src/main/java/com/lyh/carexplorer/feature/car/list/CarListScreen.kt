@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -115,9 +114,7 @@ fun CarListScreen(
                 )
                 when (state) {
                     is ResourceError -> ErrorComponent(
-                        errorText = state.errorMessage.getMessage(
-                            LocalContext.current
-                        ),
+                        errorText = stringResource(id = RCore.string.fetch_exception),
                         retry = retry,
                         modifier = Modifier.padding(10.dp)
                     )
@@ -209,11 +206,11 @@ fun CarItemCard(
 @Composable
 private fun HighlightText(text: String, query: String) =
     buildAnnotatedString {
-        val query = query.lowercase()
+        val queryFormatted = query.lowercase()
         var start = 0
-        while (text.lowercase().indexOf(query.lowercase(), start, ignoreCase = true) != -1 && query.isNotBlank()
+        while (text.lowercase().indexOf(queryFormatted, start, ignoreCase = true) != -1 && query.isNotBlank()
         ) {
-            val firstIndex = text.lowercase().indexOf(query.lowercase(), start, true)
+            val firstIndex = text.lowercase().indexOf(queryFormatted, start, true)
             val end = firstIndex + query.length
             append(text.substring(start, firstIndex))
             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onErrorContainer)) {

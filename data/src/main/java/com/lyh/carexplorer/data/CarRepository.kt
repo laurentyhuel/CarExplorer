@@ -8,9 +8,6 @@ import com.lyh.carexplorer.data.mapper.toModel
 import com.lyh.carexplorer.data.mapper.toModels
 import com.lyh.carexplorer.data.remote.CarApi
 import com.lyh.carexplorer.data.remote.dto.CarDto
-import com.lyh.carexplorer.domain.core.Result
-import com.lyh.carexplorer.domain.core.ResultException
-import com.lyh.carexplorer.domain.core.ResultSuccess
 import com.lyh.carexplorer.domain.model.CarModel
 import com.lyh.carexplorer.domain.repository.ICarRepository
 import kotlinx.coroutines.flow.*
@@ -25,10 +22,10 @@ class CarRepository(
     private var lastFetchCars: Date? = null
 
     override fun getCarById(id: Int): Flow<Result<CarModel>> =
-        flow<Result<CarModel>> {
-            emit(ResultSuccess(carDao.getCarById(id).toModel()))
+        flow {
+            emit(Result.success(carDao.getCarById(id).toModel()))
         }.catch {
-            emit(ResultException(it))
+            emit(Result.failure(it))
         }.flowOn(dispatchers.io)
 
     override fun getCars(): Flow<Result<List<CarModel>>> = fetchAndStoreLocally(
@@ -38,7 +35,7 @@ class CarRepository(
         lastFetchCars,
         ::fetchRemoteSuccessCallback
     ).catch {
-        emit(ResultException(it))
+        emit(Result.failure(it))
     }.flowOn(dispatchers.io)
 
     override fun searchCars(query: String): Flow<List<CarModel>> =

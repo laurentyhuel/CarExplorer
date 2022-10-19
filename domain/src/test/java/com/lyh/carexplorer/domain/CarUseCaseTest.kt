@@ -1,15 +1,14 @@
 package com.lyh.carexplorer.domain
 
 import app.cash.turbine.test
-import com.lyh.carexplorer.domain.core.ResultSuccess
 import com.lyh.carexplorer.domain.model.CarModel
 import com.lyh.carexplorer.domain.repository.ICarRepository
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class CarUseCaseTest {
@@ -22,15 +21,15 @@ class CarUseCaseTest {
     @Test
     fun `WHEN get cars THEN return cars`() = runTest {
 
-        coEvery { carRepository.getCars() } returns flow { emit(ResultSuccess(cars)) }
+        coEvery { carRepository.getCars() } returns flow { emit(Result.success(cars)) }
         carUseCase.getCars(null)
             .test {
                 val result = awaitItem()
 
-                Assertions.assertTrue(result is ResultSuccess<*>)
-                val resultSuccess = result as ResultSuccess<List<CarModel>>
+                assertTrue(result.isSuccess)
+                val resultSuccess = result.getOrThrow()
 
-                assertEquals(cars.size, resultSuccess.data.size)
+                assertEquals(cars.size, resultSuccess.size)
 
                 awaitComplete()
             }
@@ -39,15 +38,15 @@ class CarUseCaseTest {
     @Test
     fun `WHEN search cars with empty query THEN return all cars`() = runTest {
 
-        coEvery { carRepository.getCars() } returns flow { emit(ResultSuccess(cars)) }
+        coEvery { carRepository.getCars() } returns flow { emit(Result.success(cars)) }
         carUseCase.getCars("")
             .test {
                 val result = awaitItem()
 
-                Assertions.assertTrue(result is ResultSuccess<*>)
-                val resultSuccess = result as ResultSuccess<List<CarModel>>
+                assertTrue(result.isSuccess)
+                val resultSuccess = result.getOrThrow()
 
-                assertEquals(cars.size, resultSuccess.data.size)
+                assertEquals(cars.size, resultSuccess.size)
 
                 awaitComplete()
             }
@@ -61,10 +60,10 @@ class CarUseCaseTest {
             .test {
                 val result = awaitItem()
 
-                Assertions.assertTrue(result is ResultSuccess<*>)
-                val resultSuccess = result as ResultSuccess<List<CarModel>>
+                assertTrue(result.isSuccess)
+                val resultSuccess = result.getOrThrow()
 
-                assertEquals(cars.size, resultSuccess.data.size)
+                assertEquals(cars.size, resultSuccess.size)
 
                 awaitComplete()
             }
@@ -75,16 +74,16 @@ class CarUseCaseTest {
 
         val car = createCarModel(5)
 
-        coEvery { carRepository.getCarById(car.id) } returns flow { emit(ResultSuccess(car)) }
+        coEvery { carRepository.getCarById(car.id) } returns flow { emit(Result.success(car)) }
         carUseCase.getCarById(car.id)
             .test {
                 val result = awaitItem()
 
-                Assertions.assertTrue(result is ResultSuccess)
-                val resultSuccess = result as ResultSuccess
+                assertTrue(result.isSuccess)
+                val resultSuccess = result.getOrThrow()
 
-                assertEquals(car.id, resultSuccess.data.id)
-                assertEquals(car.model, resultSuccess.data.model)
+                assertEquals(car.id, resultSuccess.id)
+                assertEquals(car.model, resultSuccess.model)
 
                 awaitComplete()
             }

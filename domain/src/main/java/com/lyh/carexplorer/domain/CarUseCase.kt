@@ -1,7 +1,5 @@
 package com.lyh.carexplorer.domain
 
-import com.lyh.carexplorer.domain.core.Result
-import com.lyh.carexplorer.domain.core.ResultSuccess
 import com.lyh.carexplorer.domain.model.CarModel
 import com.lyh.carexplorer.domain.repository.ICarRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +11,7 @@ class CarUseCase(private val carRepository: ICarRepository) {
         if (search.isNullOrBlank()) {
             return carRepository.getCars()
         }
-        return carRepository.searchCars(search).map { ResultSuccess(it) }
+        return carRepository.searchCars(search).map { Result.success(it) }
     }
 
     fun getCarById(id: Int) = carRepository.getCarById(id)

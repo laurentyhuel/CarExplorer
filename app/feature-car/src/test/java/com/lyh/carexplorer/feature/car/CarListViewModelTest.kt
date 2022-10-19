@@ -2,7 +2,6 @@ package com.lyh.carexplorer.feature.car
 
 import app.cash.turbine.test
 import com.lyh.carexplorer.domain.CarUseCase
-import com.lyh.carexplorer.domain.core.ResultSuccess
 import com.lyh.carexplorer.domain.model.CarModel
 import com.lyh.carexplorer.feature.car.list.CarListViewModel
 import com.lyh.carexplorer.feature.car.model.CarUi
@@ -34,7 +33,7 @@ class CarListViewModelTest {
 
     @Test
     fun `WHEN get cars THEN return state with cars`() = runTest {
-        every { carUseCase.getCars("") } returns flowOf(ResultSuccess(cars))
+        every { carUseCase.getCars("") } returns flowOf(Result.success(cars))
         carListViewModel = CarListViewModel(carUseCase)
 
 
@@ -54,8 +53,8 @@ class CarListViewModelTest {
 
     @Test
     fun `WHEN search cars THEN return state with cars`() = runTest {
-        every { carUseCase.getCars("") } returns flowOf(ResultSuccess(cars))
-        every { carUseCase.getCars("query") } returns flowOf(ResultSuccess(filteredCars))
+        every { carUseCase.getCars("") } returns flowOf(Result.success(cars))
+        every { carUseCase.getCars("query") } returns flowOf(Result.success(filteredCars))
         carListViewModel = CarListViewModel(carUseCase)
 
 

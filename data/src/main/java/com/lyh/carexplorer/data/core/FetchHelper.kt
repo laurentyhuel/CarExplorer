@@ -1,16 +1,8 @@
 package com.lyh.carexplorer.data.core
 
-import com.lyh.carexplorer.data.remote.core.ApiError
-import com.lyh.carexplorer.data.remote.core.ApiException
-import com.lyh.carexplorer.data.remote.core.ApiSuccess
-import com.lyh.carexplorer.data.remote.core.callApi
-import com.lyh.carexplorer.domain.core.Result
-import com.lyh.carexplorer.domain.core.ResultError
-import com.lyh.carexplorer.domain.core.ResultException
-import com.lyh.carexplorer.domain.core.ResultSuccess
+
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import retrofit2.Response
 import java.util.*
 
 /**
@@ -25,7 +17,7 @@ import java.util.*
  * @return return a [Flow] of [Result]
  */
 internal fun <DTO, MODEL> fetchAndStoreLocally(
-    getRemote: suspend () -> Response<List<DTO>>,
+    getRemote: suspend () -> Result<List<DTO>>,
     syncData: suspend (List<DTO>) -> List<MODEL>,
     getLocal: suspend () -> List<MODEL>,
     lastFetch: Date?,
@@ -33,26 +25,19 @@ internal fun <DTO, MODEL> fetchAndStoreLocally(
 ): Flow<Result<List<MODEL>>> = flow {
 
     if (!isNeedingFreshRemoteData(lastFetch)) {
-        emit(ResultSuccess(getLocal()))
+        emit(Result.success(getLocal()))
         return@flow
     }
 
-    when (val apiResult = callApi { getRemote() }) {
-        is ApiSuccess -> {
-            val models = syncData(apiResult.data)
+    getRemote()
+        .onSuccess {
+            val models = syncData(it)
             fetchRemoteSuccessCallback()
-            emit(ResultSuccess(models))
+            emit(Result.success(models))
         }
-        is ApiError -> emit(ResultError(apiResult.code, apiResult.message))
-        is ApiException -> {
-            val localData = getLocal()
-            if (localData.isNotEmpty()) {
-                emit(ResultSuccess(localData))
-            } else {
-                emit(ResultException(apiResult.throwable))
-            }
+        .onFailure {
+            Result.failure<List<MODEL>>(it)
         }
-    }
 }
 
 private fun isNeedingFreshRemoteData(lastRemoteSuccess: Date?): Boolean {

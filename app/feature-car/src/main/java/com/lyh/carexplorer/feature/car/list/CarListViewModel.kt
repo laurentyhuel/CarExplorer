@@ -3,12 +3,12 @@ package com.lyh.carexplorer.feature.car.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lyh.carexplorer.domain.CarUseCase
-import com.lyh.carexplorer.domain.core.ResultError
-import com.lyh.carexplorer.domain.core.ResultException
-import com.lyh.carexplorer.domain.core.ResultSuccess
 import com.lyh.carexplorer.feature.car.mapper.toUis
 import com.lyh.carexplorer.feature.car.model.CarUi
-import com.lyh.carexplorer.feature.core.*
+import com.lyh.carexplorer.feature.core.Resource
+import com.lyh.carexplorer.feature.core.ResourceError
+import com.lyh.carexplorer.feature.core.ResourceLoading
+import com.lyh.carexplorer.feature.core.ResourceSuccess
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -50,26 +50,15 @@ class CarListViewModel(
         )
 
     private fun getCarsFlow(): Flow<Resource<List<CarUi>>> = carUseCase.getCars(_textSearch.value)
-        .map {
-            when (it) {
-                is ResultSuccess -> ResourceSuccess(it.data.toUis())
-                is ResultError -> {
-                    Timber.e("Failed to getCars code=${it.code} message=${it.message}")
-                    ResourceError(
-                        errorMessage = ErrorMessage.ErrorMessageString(
-                            it.message
-                        )
-                    )
+        .map { result ->
+
+            result.fold(
+                onSuccess = { ResourceSuccess(it.toUis()) },
+                onFailure = {
+                    Timber.e(it, "Failed to get cars, search=${_textSearch.value}")
+                    ResourceError(it.message)
                 }
-                is ResultException -> {
-                    Timber.e(it.throwable, "Error when getCars")
-                    ResourceError(
-                        errorMessage = ErrorMessage.ErrorMessageResource(
-                            R.string.fetch_exception
-                        )
-                    )
-                }
-            }
+            )
         }
         .onStart {
             emit(ResourceLoading())

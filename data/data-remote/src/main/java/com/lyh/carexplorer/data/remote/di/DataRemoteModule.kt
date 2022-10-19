@@ -1,8 +1,11 @@
 package com.lyh.carexplorer.data.remote.di
 
+import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.lyh.carexplorer.data.remote.CarApi
+import com.lyh.carexplorer.data.remote.core.ResultCallAdapterFactory
 import kotlinx.serialization.json.Json
+import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -17,7 +20,7 @@ fun getDataRemoteModule(isDebugEnabled: Boolean) = module {
 
     // Retrofit and OkHttp setup
     single { Json { ignoreUnknownKeys = true } }
-    single { providesOkHttpClient(isDebugEnabled) }
+    single { providesOkHttpClient(isDebugEnabled, get()) }
     single { providesRetrofit(get(), get()) }
 
     // API
@@ -31,9 +34,10 @@ private fun providesRetrofit(jsonSerializer: Json, okHttpClient: OkHttpClient) =
     .baseUrl(baseUrl)
     .client(okHttpClient)
     .addConverterFactory(jsonSerializer.asConverterFactory(mediaTypeJson.toMediaType()))
+    .addCallAdapterFactory(ResultCallAdapterFactory())
     .build()
 
-private fun providesOkHttpClient(isDebugEnabled: Boolean): OkHttpClient = OkHttpClient()
+private fun providesOkHttpClient(isDebugEnabled: Boolean, context: Context): OkHttpClient = OkHttpClient()
     .newBuilder()
     .addInterceptor(HttpLoggingInterceptor().apply {
         level = if (isDebugEnabled)
@@ -41,10 +45,12 @@ private fun providesOkHttpClient(isDebugEnabled: Boolean): OkHttpClient = OkHttp
         else
             Level.NONE
     })
+    .cache(Cache(context.cacheDir, apiCacheSize))
     .build()
 
 private const val baseUrl = "https://gist.githubusercontent.com/"
 private const val mediaTypeJson = "application/json"
+private const val apiCacheSize = 10 * 1024 * 1024L // 10 MB of cache
 
 
 
