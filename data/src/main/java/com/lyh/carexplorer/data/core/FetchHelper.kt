@@ -36,7 +36,14 @@ internal fun <DTO, MODEL> fetchAndStoreLocally(
             emit(Result.success(models))
         }
         .onFailure {
-            Result.failure<List<MODEL>>(it)
+            val localData = getLocal()
+
+            if(localData.isEmpty()) {
+                emit(Result.failure(it))
+            }else{
+                emit(Result.success(localData))
+            }
+
         }
 }
 

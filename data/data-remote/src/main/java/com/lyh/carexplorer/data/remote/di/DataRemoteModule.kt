@@ -5,7 +5,6 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import com.lyh.carexplorer.data.remote.CarApi
 import com.lyh.carexplorer.data.remote.core.ResultCallAdapterFactory
 import kotlinx.serialization.json.Json
-import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -45,12 +44,10 @@ private fun providesOkHttpClient(isDebugEnabled: Boolean, context: Context): OkH
         else
             Level.NONE
     })
-    .cache(Cache(context.cacheDir, apiCacheSize))
     .build()
 
 private const val baseUrl = "https://gist.githubusercontent.com/"
 private const val mediaTypeJson = "application/json"
-private const val apiCacheSize = 10 * 1024 * 1024L // 10 MB of cache
 
 
 
